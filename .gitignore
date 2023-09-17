@@ -21,3 +21,10 @@
 *.gz
 *.tar
 *.zip
+
+# Dataset folders
+DIV2K/
+benchmark/
+
+# Log folders
+results/

@@ -1,6 +1,6 @@
 import argparse
 
-from bnn_competition.testing import Tester
+from competition.testing import Tester
 from load import load
 
 
