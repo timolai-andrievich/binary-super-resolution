@@ -5,7 +5,7 @@ import torch.nn as nn
 
 from competition.libs.binarizers import Binarizer
 from competition.libs.binary_modules import BinaryConv2d
-from competition.libs.sign_approximators import STESignApproximator, STEWithClipSignApproximator
+from competition.libs.sign_approximators import ParabolaSignApproximator, STESignApproximator, STEWithClipSignApproximator
 from competition.libs.transformations import L1Scaling
 
 
@@ -27,7 +27,7 @@ class EConv(nn.Module):
             nn.Conv2d(self.mlp_hidden_layer, self.channels * 2, 1),
         )
         input_binarizer = Binarizer(
-            sign_approximator=STESignApproximator(),
+            sign_approximator=ParabolaSignApproximator(),
         )
         weight_binarizer = Binarizer(
             sign_approximator=STEWithClipSignApproximator(),
@@ -39,7 +39,7 @@ class EConv(nn.Module):
         # self.conv = nn.Conv2d(self.channels, self.channels, 3, 1, 1)
 
     def forward(self, x):
-        shortcut = x # TODO figure out why it works without residual connections
+        shortcut = x
         spatial_scale = self.spatial_rescale(x)
         channels_shift_scale_logits = self.channel_wise_shift_and_rescale(x)
         channels_shift, channels_scale_logits = torch.split(channels_shift_scale_logits, self.channels, dim=1)
@@ -47,6 +47,7 @@ class EConv(nn.Module):
         x = x + channels_shift 
         x = self.conv(x)
         x = x * spatial_scale * channels_scale 
+        # x = x + shortcut
         return x
 
 class BasicBlock(nn.Module):
