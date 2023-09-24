@@ -102,39 +102,41 @@ class Evaluator:
                 self.wrap_model(module, modified_modules=modified_modules, prefix=submodule_prefix)
         return model
 
-    def print_evaluation_results(self, model, model_name, scale, device=None):
+    def print_evaluation_results(self, model, model_name, scale, device=None, benchmarks=AVAILABLE_BENCHMARKS):
         model.eval()
         complexity = ComplexityEstimator().estimate(
             model.to(torch.device("cpu")), torch.rand(self.INPUT_SHAPE), model_name
         )
         model = self.wrap_model(model)
 
-        table = PrettyTable(["Model"] + ["complexity"] + AVAILABLE_BENCHMARKS)
+        table = PrettyTable(["Model"] + ["complexity"] + benchmarks)
         table.print_empty = False
         table.float_format = ".4"
 
         row = [model_name]
         row.append(self.FP_MODELS_INFO[model_name]["complexity"])
-        for name in AVAILABLE_BENCHMARKS:
+        for name in benchmarks:
             row.append(self.FP_MODELS_INFO[model_name][name])
         table.add_row(row)
 
         row = ["binary " + model_name]
         row.append(complexity)
-        for name in AVAILABLE_BENCHMARKS:
+        for name in benchmarks:
             row.append(self.evaluate_model(model, scale, name, device=device))
         table.add_row(row)
 
         print(table)
 
-    def evaluate(self, scalex2_model=None, scalex4_model=None, device=None):
+    def evaluate(self, scalex2_model=None, scalex4_model=None, device=None, benchmarks=None):
+        if benchmarks is None:
+            benchmarks = AVAILABLE_BENCHMARKS
         if scalex2_model:
             try:
-                self.print_evaluation_results(scalex2_model, "scalex2_model", scale=2, device=device)
+                self.print_evaluation_results(scalex2_model, "scalex2_model", scale=2, device=device, benchmarks=benchmarks)
             except NotBinaryException as e:
                 print(f"{e.tensor_type} for module {e.module_name} of scalex2 model are not binary!!!")
         if scalex4_model:
             try:
-                self.print_evaluation_results(scalex4_model, "scalex4_model", scale=4, device=device)
+                self.print_evaluation_results(scalex4_model, "scalex4_model", scale=4, device=device, benchmarks=benchmarks)
             except NotBinaryException as e:
                 print(f"{e.tensor_type} for module {e.module_name} of scalex4 model are not binary!!!")
