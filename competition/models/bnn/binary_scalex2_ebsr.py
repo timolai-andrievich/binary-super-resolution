@@ -36,7 +36,6 @@ class EConv(nn.Module):
         )
         self.conv = BinaryConv2d(input_binarizer, weight_binarizer, in_channels=channels,
                                  out_channels=channels, kernel_size=3, stride=1, padding=1)
-        # self.conv = nn.Conv2d(self.channels, self.channels, 3, 1, 1)
 
     def forward(self, x):
         shortcut = x
@@ -46,8 +45,9 @@ class EConv(nn.Module):
         channels_scale = torch.sigmoid(channels_scale_logits)
         x = x + channels_shift 
         x = self.conv(x)
-        x = x * spatial_scale * channels_scale 
-        # x = x + shortcut
+        x = x * spatial_scale 
+        x = x * channels_scale
+        x = x + shortcut
         return x
 
 class BasicBlock(nn.Module):
@@ -58,11 +58,9 @@ class BasicBlock(nn.Module):
         self.conv2 = EConv(channels)
     
     def forward(self, x):
-        shortcut = x
         x = self.conv1(x)
         x = self.act(x)
         x = self.conv2(x)
-        x = x + shortcut
         return x
         
 
@@ -95,7 +93,7 @@ class BinaryScalex2EBSR(nn.Module):
     Model architecture is based on the EBSR model.
     """
 
-    def __init__(self, in_channels=3, out_channels=3, feature_channels=64, n_residual_blocks=16, scale=2, **kwargs):
+    def __init__(self, in_channels=3, out_channels=3, feature_channels=64, n_residual_blocks=8, scale=2, **kwargs):
         super().__init__(**kwargs)
 
         # define head modules
