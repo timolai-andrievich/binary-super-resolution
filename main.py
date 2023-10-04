@@ -57,5 +57,6 @@ if __name__ == "__main__":
 
     task = create_task(args, logdir)
     if args.load is not None:
-        task.training_loop.model = torch.load('results/tests/baselinev1_with_spatial/iforgottospecifylogdironce/version_0/model.ckpt')
+        task.training_loop.model = torch.load(args.load)
+        print(f'Loaded {args.load}')
     task.run()
