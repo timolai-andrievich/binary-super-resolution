@@ -8,7 +8,6 @@ def parse_args():
     parser.add_argument("-b", "--benchmarks", type=str, nargs='*', default=None)
     parser.add_argument("-m", "--model", type=str, required=True)
     parser.add_argument("-s", "--scale", type=int, default=2)
-
     args = parser.parse_args()
     return args
 
