@@ -3,6 +3,7 @@ import datetime
 import os
 
 from nip import load
+import torch
 
 import competition
 
@@ -55,5 +56,7 @@ if __name__ == "__main__":
     set_gpu(args.gpu)
 
     task = create_task(args, logdir)
-
+    if args.load is not None:
+        task.training_loop.model = torch.load(args.load)
+        print(f'Loaded {args.load}')
     task.run()
