@@ -6,7 +6,7 @@
 
 ### Models
 
-The EBSR model (binary_scalex2_ebsr.py) is based on the [EBSR: Enhanced Binary Neural Network for Image Super-Resolution](https://arxiv.org/abs/2303.12270) paper.
+The EBSR model (`binary_scalex2_ebsr.py`) is based on the [EBSR: Enhanced Binary Neural Network for Image Super-Resolution](https://arxiv.org/abs/2303.12270) paper.
 
 ## How to run
 
@@ -15,6 +15,10 @@ The EBSR model (binary_scalex2_ebsr.py) is based on the [EBSR: Enhanced Binary N
  3. Install required python modules. One of the ways to do it is to run `python -m pip install -r requirements.txt`.
  4. Run `python main.py --config competition/config_files/scalex2_ebsr.yaml --logdir results/scalex2_ebsr --gpu=0`
  5. The model weights, as well as tensorboard logs will be saved into the specified log directory.
+
+## Examples
+
+![PPT3](assets/ppt3.png)
 
 ## Acknowledgements
 
