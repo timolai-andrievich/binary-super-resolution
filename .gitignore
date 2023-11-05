@@ -27,4 +27,7 @@ DIV2K/
 benchmark/
 
 # Log folders
-results/
+/results/
+/runs/
+
+node_modules
