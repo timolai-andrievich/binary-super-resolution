@@ -51,7 +51,7 @@ class Tester:
         device = self.get_device(device)
         model.to(device)
         model.eval()
-        dataloader = BenchmarkDataloader(name="set14", scale=scale)
+        dataloader = BenchmarkDataloader(name="urban100", scale=scale)
         psnr = PSNR(min_val=0, max_val=255, boundary_size=scale)
 
         def forward(x, forward_function):
@@ -96,8 +96,9 @@ class Tester:
                     continue
                 submodule_prefix = prefix + ("." if prefix else "") + name
 
-                if module._get_name() in BINARY_MODULES_NAMES:
-                    model._modules[name] = Checker(module, submodule_prefix)
+                # TODO: fix BBCU attributes for correct computations
+                # if module._get_name() in BINARY_MODULES_NAMES:
+                #     model._modules[name] = Checker(module, submodule_prefix)
 
                 self.wrap_model(module, modified_modules=modified_modules, prefix=submodule_prefix)
         return model

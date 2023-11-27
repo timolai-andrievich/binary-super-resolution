@@ -96,8 +96,8 @@ class Evaluator:
                     continue
                 submodule_prefix = prefix + ("." if prefix else "") + name
 
-                if module._get_name() in BINARY_MODULES_NAMES:
-                    model._modules[name] = Checker(module, submodule_prefix)
+                # if module._get_name() in BINARY_MODULES_NAMES:
+                #     model._modules[name] = Checker(module, submodule_prefix)
 
                 self.wrap_model(module, modified_modules=modified_modules, prefix=submodule_prefix)
         return model
