@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue"
+// TODO move hovered lens when approaching the edge of the screen
+// TODO multiple scales
+// TODO download button
+// TODO cancel upscaling button, and cancelling on server error
+// TODO error message
+import { ref, computed } from "vue"
 const fileInput = ref(null)
 const sourceImg = ref(null)
 const upscaledImg = ref(null)
 const hoverTextPos = ref([0, 0])
 const sourceCanvas = ref(null)
 const upscaledCanvas = ref(null)
-let loading = ref(false)
-let showHover = ref(false)
+const loading = ref(false)
+const mouseOnCanvas = ref(false)
+const errorMessage = ref(null);
+const showHover = computed(() => errorMessage.value === null && !loading.value && mouseOnCanvas.value && upscaledImg && upscaledImg.value && upscaledImg.value.src)
 
 function submit() {
   let file = fileInput.value.files[0];
@@ -28,25 +35,30 @@ async function processImage(image) {
     mode: "no-cors",
     body: JSON.stringify({ image: image }),
   });
+  if (!response.ok) {
+    errorMessage.value = "Error: Unable to connect to the server. Please check your internet connection and ensure that the server is currently accessible. "
+    loading.value = false
+    return
+  }
   let json = await response.json();
   upscaledImg.value.src = json.image;
   loading.value = false
 }
 
 function onHoverOriginal(){
-  showHover.value = true
+  mouseOnCanvas.value = true
 }
 
 function onLeaveOriginal() {
-  showHover.value = false
+  mouseOnCanvas.value = false
 }
 
 function onHoverUpscaled(){
-  showHover.value = true
+  mouseOnCanvas.value = true
 }
 
 function onLeaveUpscaled() {
-  showHover.value = false
+  mouseOnCanvas.value = false
 }
 
 function updateHoverPosition(event: any) {
@@ -76,8 +88,8 @@ function updateHoverPosition(event: any) {
     let ctx = sourceCanvas.value.getContext('2d')
     ctx.setTransform(1, 0, 0, 1, 0, 0)
     ctx.scale(scale, scale)
-    let dx = -(x * sourceImg.value.naturalWidth)
-    let dy = -(y * sourceImg.value.naturalHeight)
+    let dx = -(x * sourceImg.value.naturalWidth - sourceCanvas.value.width / scale / 2)
+    let dy = -(y * sourceImg.value.naturalHeight - sourceCanvas.value.height / scale / 2)
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, sourceCanvas.value.width, sourceCanvas.value.height)
     ctx.drawImage(sourceImg.value, dx, dy)
@@ -85,9 +97,9 @@ function updateHoverPosition(event: any) {
   {
     let ctx = upscaledCanvas.value.getContext('2d')
     ctx.setTransform(1, 0, 0, 1, 0, 0)
-    ctx.scale(scale, scale)
-    let dx = -(x * upscaledImg.value.naturalWidth)
-    let dy = -(y * upscaledImg.value.naturalHeight)
+    ctx.scale(scale / 2, scale / 2)
+    let dx = -(x * upscaledImg.value.naturalWidth - upscaledCanvas.value.width / scale)
+    let dy = -(y * upscaledImg.value.naturalHeight - upscaledCanvas.value.width / scale)
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, upscaledCanvas.value.width, upscaledCanvas.value.height)
     ctx.drawImage(upscaledImg.value, dx, dy)
@@ -101,8 +113,9 @@ function updateHoverPosition(event: any) {
 <template>
   <div class="container">
     <div class="inputs">
-      <input id="upload-file" type="file" accept=".png,.jpg" ref="fileInput" />
-      <button @click="submit">Submit</button>
+      <input id="upload-file" type="file" accept=".png,.jpg" ref="fileInput" style="display: none;"/>
+      <button @click="fileInput.click()">Upload</button>
+      <button @click="submit">Upscale</button>
     </div>
     <div class="images">
       <div class="original-container">
@@ -116,6 +129,9 @@ function updateHoverPosition(event: any) {
             <div></div>
           </div>
         </div>
+        <div :class="['upscaled-overlay', { hidden: errorMessage === null }]">
+          <p>{{ errorMessage }}</p>
+        </div>
         <img ref="upscaledImg" @mousemove="updateHoverPosition" @mouseover="onHoverUpscaled" @mouseleave="onLeaveUpscaled">
       </div>
     </div>
@@ -127,12 +143,23 @@ function updateHoverPosition(event: any) {
 </template>
 
 <style>
+.inputs > button {
+  border-radius: 1rem;
+  padding: 0.40rem;
+  background-color: white;
+  border: .13rem black solid;
+  transition: 100ms;
+}
+
+.inputs > button:hover {
+  background-color: lightgray;
+}
+
 .hover-text {
   position: absolute;
   transform: translate(-100%, -100%);
   display: flex;
   flex-direction: row;
-  column-gap: 1rem;
 }
 
 .hover-text > * {
@@ -151,6 +178,10 @@ html, body {
 
 .inputs {
   padding: 1rem;
+  display: flex;
+  flex-direction: row;
+  column-gap: 1rem;
+  justify-content: center;
 }
 
 #app {

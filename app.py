@@ -66,7 +66,9 @@ def upscale():
     image_tensor = torch.tensor(np.array(img).transpose((2, 0, 1)))
     image_tensor = torch.unsqueeze(image_tensor, 0)
     image_tensor = image_tensor.to(device)
-    upscaled = model(image_tensor).detach().cpu().numpy()[0].transpose((1, 2, 0))
+    with torch.no_grad():
+        model.eval()
+        upscaled = model(image_tensor).detach().cpu().numpy()[0].transpose((1, 2, 0))
     upscaled = np.clip(upscaled, 0, 255).astype('uint8')
     img = Image.fromarray(upscaled)
     url = encode_image(img)
