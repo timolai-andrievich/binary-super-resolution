@@ -28,7 +28,7 @@ def load_bbcu(model_path, scale, use_large=False):
     return build_model(opt).net_g
 
 
-def load(model_path, scale, use_bbcu=True):
+def load(model_path, scale, use_bbcu=False):
     if use_bbcu:
         return load_bbcu(model_path, scale)
     return torch.load(model_path, map_location=torch.device("cpu")) if model_path else None

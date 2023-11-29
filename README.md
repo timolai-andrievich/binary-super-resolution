@@ -10,6 +10,16 @@ The EBSR model (`binary_scalex2_ebsr.py`) is based on the [EBSR: Enhanced Binary
 
 ## How to run
 
+### Installing Python requirements
+
+1. Install all libraries in `requirements.txt`:
+    ```bash
+    pip install -r requirements.txt
+    ```
+2. Install BBCU:
+   1. Clone the BBCU submodule: `git submodule update --init`.
+   2. Navigate into the `BBCU/BBCU-SR/` directory and run `pip install`
+
 ### Training
 
  1. Download Div2K, Set5, Set14, B100, Urban100 datasets.
